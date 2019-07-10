@@ -1,26 +1,51 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {connect} from 'react-redux'
+import {Switch, Route} from "react-router-dom";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import {getDoctors,getServices} from "./store/app/actions";
+
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import Main from "./components/Main"
+import Service from "./components/Service"
+import Appointment from "./components/Appointment"
+
+
+export class App extends React.Component {
+
+    componentDidMount() {
+        this.props.getDoctors();
+        this.props.getServices()
+    }
+
+    render() {
+
+        return (
+            <div className="App">
+                <Header/>
+                    <Switch>
+                        <Route exact path="/" render={() => <div>Main</div>} />
+                        <Route exact path="/doctors" render={() => <Main data={this.props.app.doctors} flag={'doctors'}/> } />
+                        <Route exact path="/services" render={() => <Main data={Array.from(Object.values(this.props.app.services))} flag={'services'}/>} />
+                        <Route exact path="/services/:service" render={(props) => <Service his={props} data={this.props.app.services}/>} />
+                        <Route  path="/appointment/:doctor" render={(props) => <Appointment his={props} dataDoctors={this.props.app.doctors} dataServices={this.props.app.services}/>} />
+                    </Switch>
+                <Footer/>
+            </div>
+        );
+    }
 }
 
-export default App;
+const mapStateToProps = state => {
+    return {
+        app:state.app,
+    }
+};
+
+const mapDispatchToProps = {
+    getDoctors,
+    getServices
+
+};
+
+export default connect (mapStateToProps,mapDispatchToProps)(App)
